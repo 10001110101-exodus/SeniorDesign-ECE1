@@ -150,7 +150,7 @@ void loop() {
 
     Serial.printf("\nSending frame counter=%lu seq=%u\n", (unsigned long)counter, abp);
 
-    int ok = tx_send_with_retries(abp, packet);
+    int ok = send_with_retries(abp, packet);
     if (ok) {
         counter++;
         abp ^= 1; 
