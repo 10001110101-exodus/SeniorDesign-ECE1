@@ -132,9 +132,9 @@ void setup() {
     Serial.println("Ready to on car end");
 }
 
+static uint32_t counter = 0;
 
 void loop() {
-    static uint32_t counter = 0;
     static uint8_t abp = 0;
 
     //uint8_t payload[DATA_BYTES];
