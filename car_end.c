@@ -129,7 +129,7 @@ void setup() {
         while (1) delay(1000);
     }
 
-    Serial.println("Ready to send");
+    Serial.println("Ready to on car end");
 }
 
 
