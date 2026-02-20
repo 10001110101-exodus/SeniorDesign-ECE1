@@ -85,7 +85,7 @@ void loop() {
     // bad length
     if (pck_len != DATA_PCK_LEN) {
         Serial.printf("Bad length=%d -> ACK(BAD_LEN) ABP=%u\n", pck_len, abp);
-        rx_send_ack(abp, 2);
+        send_ack(abp, 2);
         return;
     }
 
@@ -95,12 +95,12 @@ void loop() {
     // duplicate
     if (last_delivered_abp == (int)abp) {
         Serial.printf("DUPLICATE ABP=%u -> ACK(DUPLICATE)\n", abp);
-        rx_send_ack(abp, 1);
+        send_ack(abp, 1);
         return;
     }
 
     // new packet
     last_delivered_abp = (int)abp;
 
-    rx_send_ack(abp, 0);
+    send_ack(abp, 0);
 }
