@@ -27,7 +27,7 @@ SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY);
 #define ACK_LEN         2
 
 #define MAX_RETRIES     5
-#define ACK_TIMEOUT_MS  1000
+#define ACK_TIMEOUT_MS  500
 
 // make a packet given the abp and the actual data
 static void make_packet(uint8_t abp, const uint8_t data[DATA_BYTES], uint8_t out_packet[DATA_PCK_LEN]) {
