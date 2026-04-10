@@ -12,9 +12,30 @@ SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY);
 // car ID **** NEEDS TO BE CHANGED FOR EACH CAR AND STARTS AT 0 ****
 #define MY_ID           1
 
+
+// CAN IDs
+#define TIME_ID 0x600
+#define BMS_DISCH_EN_ID 0x600
+#define PACK_VOLT_ID 0x601
+#define PACK_CURR_ID 0x601
+#define PACK_TEMP_ID 0x602
+#define STATE_CHRG_ID 0x602
+#define MIN_CELL_VOLT_ID 0x603
+#define BMS_LV_ID 0x603
+#define PWRTRAIN_ID 0x604
+#define TORQUE_ID 0x604
+#define RPM_ID 0x605
+#define FLUX_ID 0x605
+#define INLINE_ID 0x606
+#define LAT_ID 0x606
+#define VERT_ID 0x607
+#define ROLL_ID 0X607
+#define PITCH_ID 0x608
+#define YAW_ID 0x608
+
 CanFrame rxFrame;
 
-// CAN data
+// CAN data --> Ex: Time = 0x1001 --> Time1 = 0x10, Time0 = 0x01
 uint8_t Time0 = 0;
 uint8_t BMS_Disch_Enable0 = 0;
 uint8_t Pack_Voltage0 = 0;
@@ -187,35 +208,75 @@ void setup() {
 static uint32_t counter = 0;
 
 void loop() {
+    
+    // setting each byte of data from CAN into variables 
+    if(ESP32Can.readFrame(rxFrame,1000))
+    {
+      Serial.printf("Received frame: %03X   \r\n", rxFrame.identifier);
+      switch(rxFrame.identifier)
+      {
+        case 0x600:
+          Time0 = rxFrame.data[0]; 
+          Time1 = rxFrame.data[1];
+          BMS_Disch_Enable0 = rxFrame.data[2];
+          BMS_Disch_Enable1 = rxFrame.data[3];
+          break;
+        case 0x601:
+          Pack_Voltage0 = rxFrame.data[0];
+          Pack_Voltage1 = rxFrame.data[1];
+          Pack_Current0 = rxFrame.data[2];
+          Pack_Current0 = rxFrame.data[3];
+          break;
+        case 0x602:
+          Pack_Temp0 = rxFrame.data[0];
+          Pack_Temp1 = rxFrame.data[1];
+          State_of_Charge0 = rxFrame.data[2];
+          State_of_Charge1 = rxFrame.data[3];
+          break;
+        case 0x603:
+          Min_Cell_Voltage0 = rxFrame.data[0];
+          Min_Cell_Voltage1 = rxFrame.data[1];
+          BMS_LV_Input0 = rxFrame.data[2];
+          BMS_LV_Input1 = rxFrame.data[3];
+          break;
+        case 0x604:
+          Torque_Feedback0 = rxFrame.data[0];
+          Torque_Feedback1 = rxFrame.data[1];
+          RPM0 = rxFrame.data[2];
+          RPM1 = rxFrame.data[3];
+          break;
+        case 0x605:
+          Flux_Feedback0 = rxFrame.data[0];
+          Flux_Feedback1 = rxFrame.data[1];
+          InlineAcc0 = rxFrame.data[2];
+          InlineAcc1 = rxFrame.data[3];
+          break;
+        case 0x606:
+          LateralAcc0 = rxFrame.data[0];
+          LateralAcc1 = rxFrame.data[1];
+          VerticalAcc0 = rxFrame.data[2];
+          VerticalAcc1 = rxFrame.data[3];
+          break;
+        case 0x607:
+          RollRate0 = rxFrame.data[0];
+          RollRate1 = rxFrame.data[1];
+          PitchRate0 = rxFrame.data[2];
+          PitchRate1 = rxFrame.data[3];
+          break;
+        case 0x608:
+          YawRate0 = rxFrame.data[0];
+          YawRate1 = rxFrame.data[1];
+          break;
+      }
+    }
 
-    // grabbing data from CAN
-    // if(ESP32Can.readFrame(rxFrame, 1000)) {
-    //     // Comment out if too many frames
-    //     Serial.printf("Received frame: %03X  \r\n", rxFrame.identifier);
-    //     if(rxFrame.identifier == 0x600)
-    //     {
-    //       RPM = rxFrame.data[0] << 8 | rxFrame.data[1];
-    //       vSpeed = rxFrame.data[2] << 8 | rxFrame.data[3];
-    //       dSpeed = rxFrame.data[4] << 8 | rxFrame.data[5];
-    //       wSP = rxFrame.data[6] << 8 | rxFrame.data[7]; 
-    //     }
-    //     else if(rxFrame.identifier == 0x601)
-    //     {
-    //       frSP = rxFrame.data[0] << 8 | rxFrame.data[1];
-    //       flSP = rxFrame.data[2] << 8 | rxFrame.data[3];
-    //       rlSP = rxFrame.data[4] << 8 | rxFrame.data[5];
-    //       rrSP = rxFrame.data[6] << 8 | rxFrame.data[7];
-    //     }
-    // }
 
+    // initialize abp, sender_id, and the overall packet that will be sent
     static uint8_t abp = 0;
     static uint8_t sender_id = MY_ID;
-
-    //uint8_t payload[DATA_BYTES];
     uint8_t packet[DATA_PCK_LEN];
 
-
-    // dummy data for now 
+    // CAN data is put into array called payload
     uint8_t payload[DATA_BYTES] = {
         Time0, Time1,
         BMS_Disch_Enable0, BMS_Disch_Enable1,
@@ -236,18 +297,20 @@ void loop() {
         YawRate0, YawRate1
     };
 
-
+    // make the packet with the id, abp, and payload
+    // put into array packet
     make_packet(sender_id, abp, payload, packet);
 
     Serial.printf("\nSending frame counter=%lu seq=%u\n", (unsigned long)counter, abp);
 
+    // send the packet 
     int ok = send_with_retries(abp, packet);
     if (ok) {
         counter++;
-        abp ^= 1; 
+        abp ^= 1;           // alternate the bit 
     } else {
         Serial.println("Giving up on this frame (will try again next loop)");
     }
 
-    delay(1000);
+    delay(50);
 }
