@@ -14,17 +14,13 @@
 
 
 // constants for data sending
-#define HEADER_LEN      2				// sender_id & abp
-#define HEADER_BYTES 	4				// each are two bytes
-#define DATA_BYTES      34 				// pure data bytes (payload) --> 17 values 
-#define DATA_PCK_BYTES  HEADER_BYTES + DATA_BYTES	// 38 bytes
-#define PCK_LEN 	HEADER_LEN + DATA_BYTES/2	// 19 values
-    
+#define DATA_PCK_LEN    36
+#define HEADER_LEN      2                               // sender_id & abp
+#define DATA_BYTES      (DATA_PCK_LEN - HEADER_LEN)     
 #define ACK_LEN         3
 
 #define MAX_RETRIES     5
-#define ACK_TIMEOUT_MS  500
-
+#define ACK_TIMEOUT_MS  1000
 
 
 // constants for data receiving
