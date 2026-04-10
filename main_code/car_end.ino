@@ -10,7 +10,7 @@ XPowersAXP2101 PMU;
 SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY);
 
 // car ID **** NEEDS TO BE CHANGED FOR EACH CAR AND STARTS AT 0 ****
-#define MY_ID           1
+#define MY_ID           0
 
 
 // CAN IDs
@@ -36,41 +36,41 @@ SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY);
 CanFrame rxFrame;
 
 // CAN data --> Ex: Time = 0x1001 --> Time1 = 0x10, Time0 = 0x01
-uint8_t Time0 = 0;
-uint8_t BMS_Disch_Enable0 = 0;
-uint8_t Pack_Voltage0 = 0;
-uint8_t Pack_Current0 = 0;
-uint8_t Pack_Temp0 = 0;
-uint8_t State_of_Charge0 = 0;
-uint8_t Min_Cell_Voltage0 = 0;  
-uint8_t BMS_LV_Input0 = 0;
-uint8_t Torque_Feedback0 = 0; 
-uint8_t RPM0 = 0;
-uint8_t Flux_Feedback0 = 0;
-uint8_t InlineAcc0 = 0;
-uint8_t LateralAcc0 = 0; 
-uint8_t VerticalAcc0 = 0;
-uint8_t RollRate0 = 0; 
-uint8_t PitchRate0 = 0;
-uint8_t YawRate0 = 0;
+uint8_t Time0 = 0x00;
+uint8_t BMS_Disch_Enable0 = 0x00;
+uint8_t Pack_Voltage0 = 0x01;
+uint8_t Pack_Current0 = 0x00;
+uint8_t Pack_Temp0 = 0x00;
+uint8_t State_of_Charge0 = 0x00;
+uint8_t Min_Cell_Voltage0 = 0x00;  
+uint8_t BMS_LV_Input0 = 0x00;
+uint8_t Torque_Feedback0 = 0x00; 
+uint8_t RPM0 = 0x00;
+uint8_t Flux_Feedback0 = 0x00;
+uint8_t InlineAcc0 = 0x00;
+uint8_t LateralAcc0 = 0x00; 
+uint8_t VerticalAcc0 = 0x00;
+uint8_t RollRate0 = 0x00; 
+uint8_t PitchRate0 = 0x00;
+uint8_t YawRate0 = 0x00;
 
-uint8_t Time1 = 0;
-uint8_t BMS_Disch_Enable1 = 0;
-uint8_t Pack_Voltage1 = 0;
-uint8_t Pack_Current1 = 0;
-uint8_t Pack_Temp1 = 0;
-uint8_t State_of_Charge1 = 0;
-uint8_t Min_Cell_Voltage1 = 0; 
-uint8_t BMS_LV_Input1 = 0;
-uint8_t Torque_Feedback1 = 0; 
-uint8_t RPM1 = 0;
-uint8_t Flux_Feedback1 = 0;
-uint8_t InlineAcc1 = 0;
-uint8_t LateralAcc1 = 0; 
-uint8_t VerticalAcc1 = 0;
-uint8_t RollRate1 = 0; 
-uint8_t PitchRate1 = 0;
-uint8_t YawRate1 = 0;
+uint8_t Time1 = 0x00;
+uint8_t BMS_Disch_Enable1 = 0x00;
+uint8_t Pack_Voltage1 = 0x10;
+uint8_t Pack_Current1 = 0x00;
+uint8_t Pack_Temp1 = 0x00;
+uint8_t State_of_Charge1 = 0x00;
+uint8_t Min_Cell_Voltage1 = 0x00; 
+uint8_t BMS_LV_Input1 = 0x00;
+uint8_t Torque_Feedback1 = 0x00; 
+uint8_t RPM1 = 0x00;
+uint8_t Flux_Feedback1 = 0x00;
+uint8_t InlineAcc1 = 0x00;
+uint8_t LateralAcc1 = 0x00; 
+uint8_t VerticalAcc1 = 0x00;
+uint8_t RollRate1 = 0x00; 
+uint8_t PitchRate1 = 0x00;
+uint8_t YawRate1 = 0x00;
 
 
 // make a packet given the abp and the actual data
@@ -311,6 +311,4 @@ void loop() {
     } else {
         Serial.println("Giving up on this frame (will try again next loop)");
     }
-
-    delay(50);
 }
