@@ -3,10 +3,8 @@
 #include <XPowersLib.h>
 #include <cstdint>
 #include <ESP32-TWAI-CAN.hpp>
-#include <shared_defs.h>
 #include "utilities.h"
-
-
+#include <shared_defs.h>
 
 XPowersAXP2101 PMU;
 SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY);
@@ -14,40 +12,56 @@ SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY);
 // car ID **** NEEDS TO BE CHANGED FOR EACH CAR AND STARTS AT 0 ****
 #define MY_ID           1
 
-
 CanFrame rxFrame;
 
-// CAN data (all 2 bytes)
-uint16_t curr_time = 0;
-uint16_t dischEn = 0;
-uint16_t pckVolt = 0;
-uint16_t pckCurr = 0;
-uint16_t pckTemp = 0;
-uint16_t stateChar = 0;
-uint16_t minCellVolt = 0;
-uint16_t lvIn = 0;
-uint16_t torFb = 0;
-uint16_t RPM = 0;
-uint16_t fluxFb = 0;
-uint16_t inlineAcc = 0;
-uint16_t latAcc = 0;
-uint16_t vertAcc = 0;
-uint16_t rollRate = 0;
-uint16_t pitchRate = 0;
-uint16_t yawRate = 0;
+// CAN data
+uint8_t Time0 = 0;
+uint8_t BMS_Disch_Enable0 = 0;
+uint8_t Pack_Voltage0 = 0;
+uint8_t Pack_Current0 = 0;
+uint8_t Pack_Temp0 = 0;
+uint8_t State_of_Charge0 = 0;
+uint8_t Min_Cell_Voltage0 = 0;  
+uint8_t BMS_LV_Input0 = 0;
+uint8_t Torque_Feedback0 = 0; 
+uint8_t RPM0 = 0;
+uint8_t Flux_Feedback0 = 0;
+uint8_t InlineAcc0 = 0;
+uint8_t LateralAcc0 = 0; 
+uint8_t VerticalAcc0 = 0;
+uint8_t RollRate0 = 0; 
+uint8_t PitchRate0 = 0;
+uint8_t YawRate0 = 0;
 
+uint8_t Time1 = 0;
+uint8_t BMS_Disch_Enable1 = 0;
+uint8_t Pack_Voltage1 = 0;
+uint8_t Pack_Current1 = 0;
+uint8_t Pack_Temp1 = 0;
+uint8_t State_of_Charge1 = 0;
+uint8_t Min_Cell_Voltage1 = 0; 
+uint8_t BMS_LV_Input1 = 0;
+uint8_t Torque_Feedback1 = 0; 
+uint8_t RPM1 = 0;
+uint8_t Flux_Feedback1 = 0;
+uint8_t InlineAcc1 = 0;
+uint8_t LateralAcc1 = 0; 
+uint8_t VerticalAcc1 = 0;
+uint8_t RollRate1 = 0; 
+uint8_t PitchRate1 = 0;
+uint8_t YawRate1 = 0;
 
 
 // make a packet given the abp and the actual data
-static void make_packet(uint16_t sender_id, uint16_t abp, const uint16_t data[DATA_BYTES], uint16_t out_packet[PCK_LEN]) {
-    out_packet[0] = (uint16_t)(sender_id & 0xFFFF);
-    out_packet[1] = (uint16_t)(abp & 0xFFFF);
+static void make_packet(uint8_t sender_id, uint8_t abp, const uint8_t data[DATA_BYTES], uint8_t out_packet[DATA_PCK_LEN]) {
+    out_packet[0] = (uint8_t)(sender_id & 0xFF);
+    out_packet[1] = (uint8_t)(abp & 0xFF);
     memcpy(out_packet + 2, data, DATA_BYTES);
 }
 
 // wait for ACK (the dest_id, abp num, status) for the expected abp num
 // return 1 if received, 0 if timeout
-static int wait_for_ack(uint16_t expected_abp, uint8_t *status_out) {
+static int wait_for_ack(uint8_t expected_abp, uint8_t *status_out) {
     uint32_t start = millis();      // start recording the time
     uint8_t ack[ACK_LEN];
 
@@ -61,7 +75,7 @@ static int wait_for_ack(uint16_t expected_abp, uint8_t *status_out) {
                 continue;
             }
             // make sure it's the right abp
-            if (ack[1] == (expected_abp & 0xFFFF)) {
+            if (ack[1] == (expected_abp & 0xFF)) {
                 // set the status of the ack
                 *status_out = ack[2];
                 return 1;
@@ -80,10 +94,10 @@ static int wait_for_ack(uint16_t expected_abp, uint8_t *status_out) {
 
 // send data with retries if not successful
 // return 1 if delivered else 0
-static int send_with_retries(uint16_t abp, const uint16_t packet[PCK_LEN]) {
+static int send_with_retries(uint8_t abp, const uint8_t packet[DATA_PCK_LEN]) {
 
     for (int attempt = 1; attempt <= MAX_RETRIES; attempt++ ) {
-        int16_t st = radio.transmit((uint8_t*)packet, PCK_LEN);
+        int16_t st = radio.transmit((uint8_t*)packet, DATA_PCK_LEN);
 
         // check if successfully sent
         if (st != RADIOLIB_ERR_NONE) {
@@ -194,18 +208,34 @@ void loop() {
     //     }
     // }
 
-    static uint16_t abp = 0;
-    static uint16_t sender_id = MY_ID;
+    static uint8_t abp = 0;
+    static uint8_t sender_id = MY_ID;
+
+    //uint8_t payload[DATA_BYTES];
+    uint8_t packet[DATA_PCK_LEN];
 
 
-    uint16_t packet[PCK_LEN];
+    // dummy data for now 
+    uint8_t payload[DATA_BYTES] = {
+        Time0, Time1,
+        BMS_Disch_Enable0, BMS_Disch_Enable1,
+        Pack_Voltage0, Pack_Voltage1,
+        Pack_Current0, Pack_Current1,
+        Pack_Temp0, Pack_Temp1,
+        State_of_Charge0, State_of_Charge1,
+        Min_Cell_Voltage0, Min_Cell_Voltage1, 
+        BMS_LV_Input0, BMS_LV_Input1,
+        Torque_Feedback0, Torque_Feedback1,
+        RPM0, RPM1,
+        Flux_Feedback0, Flux_Feedback1,
+        InlineAcc0, InlineAcc1,
+        LateralAcc0, LateralAcc1,
+        VerticalAcc0, VerticalAcc1,
+        RollRate0, RollRate1,
+        PitchRate0, PitchRate1,
+        YawRate0, YawRate1
+    };
 
-    // putting CAN data into a payload
-    uint16_t payload[DATA_BYTES] = {
-        curr_time, dischEn, pckVolt, pckCurr, pckTemp, 
-        stateChar, minCellVolt, lvIn, torFb, RPM,
-        fluxFb, inlineAcc, latAcc, vertAcc, rollRate,
-        pitchRate, yawRate };
 
     make_packet(sender_id, abp, payload, packet);
 
