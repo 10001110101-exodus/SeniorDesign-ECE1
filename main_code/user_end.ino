@@ -6,7 +6,6 @@
 XPowersAXP2101 PMU;
 SX1262 radio = new Module(LORA_CS, LORA_DIO1, LORA_RST, LORA_BUSY);
 
-
 // array index is the sender_id
 static int abp_array[NUM_CARS];
 
@@ -98,7 +97,14 @@ void loop() {
     // otherwise it is a new packet so update the abp in the array and send the packet
     abp_array[sender_id] = (int)abp;
 
+    // send acknowledgement of correct data
     send_ack(sender_id, abp, 0);
+
+    // grab the 16 bit data and put into array 
+    uint16_t actual_data[17];
+    for (int i = 0; i < 17; i++) {
+        actual_data[i] = ((uint16_t)pck[2*i + 3] << 8) | pck[2*i + 2];
+    }
 
     // headers for the type of data
     char *headers[17] = { "Time", "BMS_Disch_Enable",
@@ -121,28 +127,6 @@ void loop() {
     */
     Serial.printf("Car_ID=%u\n", sender_id);
     Serial.printf("ABP=%u\n", abp);
-
-    uint16_t actual_data[17] = {
-        pck[3] << 8 | pck[2],
-        pck[5] << 8 | pck[4],
-        pck[7] << 8 | pck[6],
-        pck[9] << 8 | pck[8],
-        pck[11] << 8 | pck[10],
-        pck[13] << 8 | pck[12],
-        pck[15] << 8 | pck[14],
-        pck[17] << 8 | pck[16],
-        pck[19] << 8 | pck[18],
-        pck[21] << 8 | pck[20],
-        pck[23] << 8 | pck[22],
-        pck[25] << 8 | pck[24],
-        pck[27] << 8 | pck[26],
-        pck[29] << 8 | pck[28],
-        pck[31] << 8 | pck[30],
-        pck[33] << 8 | pck[32],
-        pck[35] << 8 | pck[34]
-    };
-
-
     for (int i = 0; i < 17; i++) {
         Serial.printf("%s=0x%04X\n", headers[i], actual_data[i]);
     }
