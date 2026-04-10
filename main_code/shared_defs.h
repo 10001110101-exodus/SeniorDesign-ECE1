@@ -20,7 +20,7 @@
 #define ACK_LEN         3
 
 #define MAX_RETRIES     5
-#define ACK_TIMEOUT_MS  1000
+#define ACK_TIMEOUT_MS  500
 
 
 // constants for data receiving
