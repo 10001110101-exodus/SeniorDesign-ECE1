@@ -38,9 +38,9 @@ CanFrame rxFrame;
 // CAN data --> Ex: Time = 0x1001 --> Time1 = 0x10, Time0 = 0x01
 uint8_t Time0 = 0x00;
 uint8_t BMS_Disch_Enable0 = 0x00;
-uint8_t Pack_Voltage0 = 0x01;
-uint8_t Pack_Current0 = 0x00;
-uint8_t Pack_Temp0 = 0x00;
+uint8_t Pack_Voltage0 = 0x02;
+uint8_t Pack_Current0 = 0x01;
+uint8_t Pack_Temp0 = 0x01;
 uint8_t State_of_Charge0 = 0x00;
 uint8_t Min_Cell_Voltage0 = 0x00;  
 uint8_t BMS_LV_Input0 = 0x00;
@@ -56,7 +56,7 @@ uint8_t YawRate0 = 0x00;
 
 uint8_t Time1 = 0x00;
 uint8_t BMS_Disch_Enable1 = 0x00;
-uint8_t Pack_Voltage1 = 0x10;
+uint8_t Pack_Voltage1 = 0x00;
 uint8_t Pack_Current1 = 0x00;
 uint8_t Pack_Temp1 = 0x00;
 uint8_t State_of_Charge1 = 0x00;
@@ -216,56 +216,59 @@ void loop() {
       switch(rxFrame.identifier)
       {
         case 0x600:
-          Time0 = rxFrame.data[0]; 
-          Time1 = rxFrame.data[1];
-          BMS_Disch_Enable0 = rxFrame.data[2];
-          BMS_Disch_Enable1 = rxFrame.data[3];
+          Time0 = rxFrame.data[1]; 
+          Time1 = rxFrame.data[0];
+          BMS_Disch_Enable0 = rxFrame.data[3];
+          BMS_Disch_Enable1 = rxFrame.data[2];
           break;
         case 0x601:
-          Pack_Voltage0 = rxFrame.data[0];
-          Pack_Voltage1 = rxFrame.data[1];
-          Pack_Current0 = rxFrame.data[2];
+          Pack_Voltage0 = rxFrame.data[1];
+          Pack_Voltage1 = rxFrame.data[0];
           Pack_Current0 = rxFrame.data[3];
+          Pack_Current0 = rxFrame.data[2];
           break;
         case 0x602:
-          Pack_Temp0 = rxFrame.data[0];
-          Pack_Temp1 = rxFrame.data[1];
-          State_of_Charge0 = rxFrame.data[2];
-          State_of_Charge1 = rxFrame.data[3];
+          Pack_Temp0 = rxFrame.data[1];
+          Pack_Temp1 = rxFrame.data[0];
+          State_of_Charge0 = rxFrame.data[3];
+          State_of_Charge1 = rxFrame.data[2];
           break;
         case 0x603:
-          Min_Cell_Voltage0 = rxFrame.data[0];
-          Min_Cell_Voltage1 = rxFrame.data[1];
-          BMS_LV_Input0 = rxFrame.data[2];
-          BMS_LV_Input1 = rxFrame.data[3];
+          Min_Cell_Voltage0 = rxFrame.data[1];
+          Min_Cell_Voltage1 = rxFrame.data[0];
+          BMS_LV_Input0 = rxFrame.data[3];
+          BMS_LV_Input1 = rxFrame.data[2];
           break;
         case 0x604:
-          Torque_Feedback0 = rxFrame.data[0];
-          Torque_Feedback1 = rxFrame.data[1];
-          RPM0 = rxFrame.data[2];
-          RPM1 = rxFrame.data[3];
+          Torque_Feedback0 = rxFrame.data[3];
+          Torque_Feedback1 = rxFrame.data[2];
           break;
         case 0x605:
-          Flux_Feedback0 = rxFrame.data[0];
-          Flux_Feedback1 = rxFrame.data[1];
-          InlineAcc0 = rxFrame.data[2];
-          InlineAcc1 = rxFrame.data[3];
+		  RPM0 = rxFrame.data[1];
+          RPM1 = rxFrame.data[0];
+          Flux_Feedback0 = rxFrame.data[3];
+          Flux_Feedback1 = rxFrame.data[2];
+
           break;
         case 0x606:
-          LateralAcc0 = rxFrame.data[0];
-          LateralAcc1 = rxFrame.data[1];
-          VerticalAcc0 = rxFrame.data[2];
-          VerticalAcc1 = rxFrame.data[3];
+          InlineAcc0 = rxFrame.data[1];
+          InlineAcc1 = rxFrame.data[0];
+          LateralAcc0 = rxFrame.data[3];
+          LateralAcc1 = rxFrame.data[2];
+
           break;
         case 0x607:
-          RollRate0 = rxFrame.data[0];
-          RollRate1 = rxFrame.data[1];
-          PitchRate0 = rxFrame.data[2];
-          PitchRate1 = rxFrame.data[3];
+          VerticalAcc0 = rxFrame.data[1];
+          VerticalAcc1 = rxFrame.data[0];
+          RollRate0 = rxFrame.data[3];
+          RollRate1 = rxFrame.data[2];
+
           break;
         case 0x608:
-          YawRate0 = rxFrame.data[0];
-          YawRate1 = rxFrame.data[1];
+          PitchRate0 = rxFrame.data[1];
+          PitchRate1 = rxFrame.data[0];
+          YawRate0 = rxFrame.data[3];
+          YawRate1 = rxFrame.data[2];
           break;
       }
     }
@@ -311,4 +314,6 @@ void loop() {
     } else {
         Serial.println("Giving up on this frame (will try again next loop)");
     }
+
+    
 }
