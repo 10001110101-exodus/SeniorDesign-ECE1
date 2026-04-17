@@ -17,7 +17,7 @@ static void send_ack(uint8_t sender_id, uint8_t abp, uint8_t status) {
     ack[0] = (uint8_t)(sender_id & 0xFF);
     ack[1] = (uint8_t)(abp & 0xFF);
     ack[2] = status;
-    radio.transmit(ack, ACK_LEN);
+    radio.transmit(ack, ACK_LEN);  
 }
 
 
@@ -34,8 +34,8 @@ void power_up_tbeam() {
     PMU.enableDLDO1();
 
     SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
-    int state = radio.begin(918.0, 125.0, 7, 7, 0x12, 17, 8, 1.8, true);
-
+    int state = radio.begin(915.0, 125.0, 7, 7, 0x12, 17, 8, 1.8, true);
+    
     if (state == RADIOLIB_ERR_NONE) {
         radio.setTCXO(1.8); 
         radio.setDio2AsRfSwitch();
@@ -61,7 +61,7 @@ void loop() {
     uint8_t pck[DATA_PCK_LEN];
     int16_t st = radio.receive(pck, DATA_PCK_LEN);
     delay(100);
-
+    
     // make sure receive is properly receieved
     if (st != RADIOLIB_ERR_NONE) {
         return;
@@ -99,7 +99,6 @@ void loop() {
     abp_array[sender_id] = (int)abp;
 
     // send acknowledgement of correct data
-
     send_ack(sender_id, abp, 0);
 
     // grab the 16 bit data and put into array 
